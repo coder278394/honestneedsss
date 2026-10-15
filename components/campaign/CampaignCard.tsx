@@ -21,6 +21,8 @@ import type { BoostSource } from '@/services/campaignBoostService'
 import { normalizeImageUrl } from '@/utils/imageUtils'
 import { tk } from '@/styles/dashboardTokens'
 import { MiracleModeBadge } from '@/components/campaign/MiracleModeBadge'
+import UpgradeAnotherCampaignButton from '@/components/campaign/UpgradeAnotherCampaignButton'
+import { useAuthUserId, useIsAuthenticated } from '@/store/authStore'
 
 interface CampaignCardProps {
   campaign: Campaign
@@ -324,14 +326,27 @@ const Stat = styled.div`
 `
 
 // ─── Actions ───────────────────────────────────────────────────────────────────
+// `flex-wrap: wrap` + each child declaring `flex: 1 1 <basis>` is the whole
+// story here. When the card is wide enough for both buttons at their basis,
+// they share the row equally. When it isn't — the 2-column mobile grid, a
+// narrow sidebar, etc. — each one claims its own full-width row instead of
+// overflowing the card. No media queries, no container queries, no per-page
+// tuning.
 const Actions = styled.div`
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: auto;
+
+  /* Any direct child button adopts the share-or-stack behaviour so a future
+     addition to the row (a third action) wraps the same way. */
+  > * {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
 `
 
 const ViewDetailsBtn = styled(Link)`
-  flex: 1;
   height: 40px;
   border-radius: 10px;
   border: none;
@@ -346,12 +361,14 @@ const ViewDetailsBtn = styled(Link)`
   align-items: center;
   justify-content: center;
   gap: 6px;
+  padding: 0 12px;
   letter-spacing: 0.2px;
+  white-space: nowrap;
   transition: background 180ms, transform 120ms;
 
   &:hover { background: ${tk.inkLight}; transform: scale(1.01); }
   &:active { transform: scale(0.98); }
-  svg { transition: transform 180ms; }
+  svg { transition: transform 180ms; flex-shrink: 0; }
   &:hover svg { transform: translateX(2px); }
 `
 
@@ -371,6 +388,8 @@ const fmt = (cents: number) =>
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 export function CampaignCard({ campaign, showBoost, boostSource = 'discover' }: CampaignCardProps) {
+  const viewerId = useAuthUserId()
+  const isAuthenticated = useIsAuthenticated()
   // SR-1/SR-2: the dollar meter uses the FUNDRAISING goal only (never goals[0],
   // which could be a sharing_reach share-count). Reach is a separate shares meter.
   const goals = (campaign.goals ?? []) as Array<{
@@ -565,6 +584,19 @@ export function CampaignCard({ campaign, showBoost, boostSource = 'discover' }: 
           {showBoost && campaign.id && (
             <BoostButton campaignId={String(campaign.id)} source={boostSource} hideCount />
           )}
+          {/* Phase 3 — only on Free Campaigns, never on viewer's own. The
+              component itself handles the eligibility check + guards. */}
+          <UpgradeAnotherCampaignButton
+            campaign={{
+              campaign_id: String(campaign.id),
+              _id: (campaign as unknown as { _id?: string })._id,
+              campaign_type: (campaign as unknown as { campaign_type?: 'fundraising' | 'sharing' }).campaign_type,
+              creator_id: (campaign as unknown as { creator_id?: string }).creator_id,
+            }}
+            viewerId={viewerId ?? null}
+            isAuthenticated={isAuthenticated}
+            variant="outline"
+          />
         </Actions>
       </Body>
     </Card>
