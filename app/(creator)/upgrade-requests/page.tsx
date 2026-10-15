@@ -8,7 +8,7 @@
  * (my-requests tab) so a creator can track and cancel their asks.
  */
 
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import styled, { css } from 'styled-components'
@@ -734,9 +734,14 @@ function UpgradeRequestsInner() {
 }
 
 export default function UpgradeRequestsPage() {
+  // UpgradeRequestsInner calls useSearchParams() (for the ?tab= deep-link);
+  // Next.js >=15 requires a Suspense boundary around any component that does,
+  // or `next build` fails with a prerender error on this route.
   return (
     <ProtectedRoute>
-      <UpgradeRequestsInner />
+      <Suspense fallback={null}>
+        <UpgradeRequestsInner />
+      </Suspense>
     </ProtectedRoute>
   )
 }

@@ -9,7 +9,7 @@
  * backend creates a pending request that only the campaign owner can approve.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import styled from 'styled-components'
@@ -595,9 +595,14 @@ function UpgradeInner() {
 }
 
 export default function SponsorUpgradePage() {
+  // UpgradeInner calls useSearchParams() (for ?role=); Next.js >=15 requires
+  // a Suspense boundary around any component that does, or `next build` fails
+  // with a prerender error on this route.
   return (
     <ProtectedRoute>
-      <UpgradeInner />
+      <Suspense fallback={null}>
+        <UpgradeInner />
+      </Suspense>
     </ProtectedRoute>
   )
 }
