@@ -368,7 +368,7 @@ const steps = [
   {
     number: 1,
     icon: FiEdit3,
-    offset: '20px',
+    offset: '0px',
     title: 'Create a Campaign',
     description: 'Tell your story, set your need, and add your preferred payment methods. It takes just 5 minutes.',
     gradient: 'linear-gradient(135deg, rgba(244,63,94,0.15) 0%, rgba(236,72,153,0.08) 50%, rgba(244,63,94,0.03) 100%)',
@@ -406,7 +406,7 @@ const steps = [
   {
     number: 3,
     icon: FiHeart,
-    offset: '20px',
+    offset: '0px',
     title: 'Reward & Thank',
     description: 'Offer thank-you rewards or paid shares to top supporters who help spread the word.',
     gradient: 'linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(251,191,36,0.08) 50%, rgba(245,158,11,0.03) 100%)',

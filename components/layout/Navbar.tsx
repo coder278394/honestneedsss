@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/authStore'
 import Button from '@/components/ui/Button'
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { useMyUpgradeRequests } from '@/hooks/useCampaignUpgrade'
+import { useFeatureSpotlights } from '@/hooks/useFeatureSpotlights'
 import {
   Menu,
   X,
@@ -51,6 +52,9 @@ import {
   Inbox,
   Send,
   ArrowUpCircle,
+  Megaphone,
+  Film,
+  Video as VideoIcon,
 } from 'lucide-react'
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -66,7 +70,7 @@ interface NavLink {
    * a number so these arrays stay static data — the count is resolved at render
    * time from a hook.
    */
-  badge?: 'upgradeRequests'
+  badge?: 'upgradeRequests' | 'whatsNew'
 }
 
 /**
@@ -92,13 +96,32 @@ const NavBadge = styled.span`
 // ─── Nav Link Definitions ───────────────────────────────────────────────────
 
 const publicNavLinks: NavLink[] = [
+  { label: "What's New", href: '/whats-new', icon: <Sparkles size={15} />, group: 'Explore', badge: 'whatsNew' },
   { label: 'Browse Campaigns', href: '/campaigns', icon: <Compass size={15} />, group: 'Explore' },
+  // Phase 4 — public video feed. Watch, share, and (for creators) upload
+  // short clips. Keep in Explore so visitors discover it before signing in.
+  { label: 'Videos', href: '/videos', icon: <Film size={15} />, group: 'Explore' },
+  // Phase 4 — public community feed. Everyone can read; sign-in gates posting,
+  // liking, and replying. The link lives in Explore so visitors discover it.
+  { label: 'Community', href: '/community', icon: <MessageSquare size={15} />, group: 'Explore' },
+  // Phase 3 — community sponsor feed: owner-asks-community upgrade requests.
+  // Public link; the page itself prompts login before any action.
+  { label: 'Help a Campaign', href: '/upgrade-requests', icon: <ArrowUpCircle size={15} />, group: 'Explore' },
+  // Phase 3 — Share & Earn entry point. Routes to the existing shares hub
+  // so signed-in sharers can act; signed-out viewers land on the explainer.
+  { label: 'Share & Earn', href: '/shares', icon: <Share2 size={15} />, group: 'Explore' },
   { label: 'Sweepstakes', href: '/sweepstakes', icon: <Gift size={15} />, group: 'Explore' },
   { label: 'Businesses', href: '/business', icon: <Building2 size={15} />, group: 'Explore' },
   { label: 'Volunteer', href: '/opportunities', icon: <HeartHandshake size={15} />, group: 'Explore' },
   { label: 'Hope Responders', href: '/hope-responders', icon: <Siren size={15} />, group: 'Explore' },
   { label: 'Giveaways', href: '/giveaways', icon: <Gift size={15} />, group: 'Explore' },
   { label: 'Rewards', href: '/rewards', icon: <Award size={15} />, group: 'Explore' },
+  // Phase 7 (TASK-7.12): entry chip into the Battle Buddies / Veterans space.
+  // Lives in the public nav so civilians can discover the resource too.
+  // Battle Buddies for Vets runs on a separate site. The redirect in
+  // next.config.ts also catches this URL, but routing straight to the external
+  // target skips the redirect hop for every tap.
+  { label: 'Battle Buddies for Vets ↗', href: 'https://battlebuddiesforvets.vercel.app/Veterans', icon: <Siren size={15} />, group: 'Explore' },
   { label: 'Impact', href: '/impact', icon: <Globe size={15} />, group: 'Explore' },
 ]
 
@@ -180,6 +203,14 @@ const volunteerNavLinks: NavLink[] = [
 
 const creatorNavLinks: NavLink[] = [
   { label: 'My Campaigns', href: '/dashboard/campaigns', icon: <FileText size={15} />, roles: ['creator', 'admin'], group: 'Creator Tools' },
+  // Video upload is a signed-in-only earner (up to $1 per verified share
+  // every 12 hours). The browse page lives in the public Explore group; this
+  // link puts the upload action one click away for creators from any page.
+  { label: 'Upload Video', href: '/videos/upload', icon: <VideoIcon size={15} />, roles: ['creator', 'admin'], group: 'Creator Tools' },
+  // Owner-side entry into the community upgrade flow. Lives next to My
+  // Campaigns because that's the context in which someone decides their Free
+  // campaign is ready to be lifted to Share tier.
+  { label: 'Request Upgrade', href: '/upgrade-requests/new', icon: <Megaphone size={15} />, roles: ['creator', 'admin'], group: 'Creator Tools' },
   { label: 'Analytics', href: '/analytics', icon: <BarChart3 size={15} />, roles: ['creator', 'admin'], group: 'Creator Tools' },
   { label: 'Messages', href: '/messages', icon: <MessageSquare size={15} />, roles: ['creator', 'admin'], group: 'Creator Tools' },
   { label: 'Boosts', href: '/boosts', icon: <Rocket size={15} />, roles: ['creator', 'admin'], group: 'Creator Tools' },
@@ -815,6 +846,12 @@ export default function Navbar() {
   const { data: pendingUpgrades } = useMyUpgradeRequests('pending_owner_approval', isAuthenticated)
   const pendingUpgradeCount = isAuthenticated ? pendingUpgrades?.items?.length ?? 0 : 0
 
+  // Count of unseen "New" spotlights. Dismissed items are already filtered out
+  // of the nav_badge surface server-side, so this is just .length. Failure is
+  // silent — a nav badge never breaks the header.
+  const { items: navSpotlights } = useFeatureSpotlights('nav_badge')
+  const whatsNewCount = navSpotlights.filter((s) => s.is_new).length
+
   // SSR-safe portal mount
   useEffect(() => { setIsMounted(true) }, [])
 
@@ -1030,6 +1067,11 @@ export default function Navbar() {
                               {pendingUpgradeCount}
                             </NavBadge>
                           )}
+                          {link.badge === 'whatsNew' && whatsNewCount > 0 && (
+                            <NavBadge aria-label={`${whatsNewCount} new features`}>
+                              {whatsNewCount}
+                            </NavBadge>
+                          )}
                         </DropdownItem>
                       ))}
                     </DropdownMenu>
@@ -1212,6 +1254,11 @@ export default function Navbar() {
                                     {link.badge === 'upgradeRequests' && pendingUpgradeCount > 0 && (
                                       <NavBadge aria-label={`${pendingUpgradeCount} pending`}>
                                         {pendingUpgradeCount}
+                                      </NavBadge>
+                                    )}
+                                    {link.badge === 'whatsNew' && whatsNewCount > 0 && (
+                                      <NavBadge aria-label={`${whatsNewCount} new features`}>
+                                        {whatsNewCount}
                                       </NavBadge>
                                     )}
                                   </DrawerLink>

@@ -3,11 +3,12 @@
 import React from 'react'
 import styled from 'styled-components'
 import { toast } from 'react-toastify'
-import { Lock, Bell, Eye, ArrowRight } from 'lucide-react'
+import { Lock, Bell, Eye, ArrowRight, Link2 } from 'lucide-react'
 import { honestNeed } from '@/features/profile/theme'
 import type { ProfileDashboard, PrivacySettings } from '@/types/profile'
 import { useUpdateProfile } from '@/api/hooks/useProfile'
 import { SectionCard, SectionTitle, GhostLink } from '../shared'
+import SocialLinksCard from '@/components/profile/SocialLinksCard'
 
 /**
  * Settings tab â€” privacy controls (wired to PATCH /users/me/profile) plus
@@ -68,6 +69,20 @@ export function SettingsTab({ data }: { data: ProfileDashboard }) {
           <span>Change your password and manage account access.</span>
           <GhostLink href="/creator/settings">Change password <ArrowRight size={15} /></GhostLink>
         </LinkRow>
+      </SectionCard>
+
+      {/* Social & custom links — the destination for the "Add your social
+          links" feature-spotlight tile on /whats-new. */}
+      <SectionCard id="social-links">
+        <SectionTitle>
+          <Link2 size={16} color={honestNeed.colors.primary} />
+          Social &amp; custom links
+        </SectionTitle>
+        <p style={{ margin: '0 0 14px', fontSize: '0.88rem', color: honestNeed.colors.mutedText }}>
+          Instagram, TikTok, YouTube, LinkedIn, X — plus up to 5 named custom links.
+          Shown on your public profile and campaign pages.
+        </p>
+        <SocialLinksCard />
       </SectionCard>
     </Stack>
   )

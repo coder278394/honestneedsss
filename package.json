@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check:apiclient": "node scripts/check-apiclient-usage.js",
+    "i18n:export": "node scripts/i18n/export-strings.js",
+    "i18n:import": "node scripts/i18n/import-translations.js"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "^1.4.0",
@@ -22,6 +25,7 @@
     "core-js": "^3.49.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
+    "hls.js": "^1.7.3",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^1.7.0",

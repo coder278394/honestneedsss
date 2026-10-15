@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { FiPlay, FiArrowRight, FiUsers, FiHeart, FiShare2, FiShield, FiZap, FiCheckCircle } from 'react-icons/fi';
 import Button from '../ui/Button';
 import Container from '../ui/Container';
+import { apiClient } from '@/lib/api';
 
 // ─── Background Animations ───────────────────────────────────────────────────
 
@@ -621,11 +622,45 @@ const slideInRight = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+// Formats a positive integer as a short, human-friendly stat label.
+// 1245 → "1.2K", 8412 → "8.4K", 1_200_000 → "1.2M". Values below 1000 are
+// shown verbatim; a sentinel of 0 shows as "0".
+function formatCount(n) {
+  const v = Number(n) || 0;
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(v % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(v % 1_000 === 0 ? 0 : 1)}K`;
+  return String(v);
+}
+
+function formatMoney(cents) {
+  const dollars = (Number(cents) || 0) / 100;
+  if (dollars >= 1_000_000) return `$${(dollars / 1_000_000).toFixed(dollars % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (dollars >= 1_000) return `$${(dollars / 1_000).toFixed(dollars % 1_000 === 0 ? 0 : 1)}K`;
+  return `$${dollars.toFixed(0)}`;
+}
+
 export default function Hero() {
   const router = useRouter();
   const [showVideo, setShowVideo] = useState(false);
+  const [stats, setStats] = useState(null);
   const videoRef = useRef(null);
   const videoContainerRef = useRef(null);
+
+  // Live platform counters for the hero. Cached server-side for 60s so this
+  // never slows the first paint, and swallowed on error so the hero still
+  // renders without numbers rather than crashing above the fold.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await apiClient.get('/campaigns/platform-stats');
+        if (!cancelled && data && data.data) setStats(data.data);
+      } catch {
+        if (!cancelled) setStats({ campaigns: 0, supporters: 0, funds_moved_cents: 0 });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleStartCampaign = () => router.push('/login');
   const handleBrowseNeeds = () => router.push('/sponsorships');
@@ -724,7 +759,7 @@ export default function Hero() {
             {/* Eyebrow */}
             <EyebrowBadge variants={itemVariants}>
               <span className="dot" />
-              Community-Powered Support · Est. 2024
+              Community-Powered Support · Est. 2026
             </EyebrowBadge>
 
             {/* Headline */}
@@ -770,25 +805,39 @@ export default function Hero() {
                 <div className="avatar">A</div>
                 <div className="avatar">T</div>
               </AvatarStack>
+              {/* Live supporter count. While stats are loading we show a
+                  neutral copy so no hardcoded number ever flashes; when the
+                  real count is still small, we lean on a mission-forward line
+                  instead of a tiny number that undersells the platform. */}
               <SocialProofText>
-                <strong>8,400+ supporters</strong> already helping their communities
+                {stats && stats.supporters >= 10 ? (
+                  <>
+                    <strong>{stats.supporters.toLocaleString()}+ supporters</strong>{' '}
+                    already helping their communities
+                  </>
+                ) : (
+                  <>
+                    <strong>Join a growing community</strong> helping neighbors with real needs
+                  </>
+                )}
               </SocialProofText>
             </SocialProofStrip>
 
-            {/* Stats */}
+            {/* Stats — live counters from /campaigns/platform-stats. Dashes
+                while loading, so the hero never shows a stale hardcoded number. */}
             <StatsRow variants={itemVariants}>
               <StatItem>
-                <span className="value">1.2K+</span>
+                <span className="value">{stats ? formatCount(stats.campaigns) : '—'}</span>
                 <span className="label">Campaigns</span>
               </StatItem>
               <StatDivider />
               <StatItem>
-                <span className="value">8.4K</span>
+                <span className="value">{stats ? formatCount(stats.supporters) : '—'}</span>
                 <span className="label">Supporters</span>
               </StatItem>
               <StatDivider />
               <StatItem>
-                <span className="value">$120K</span>
+                <span className="value">{stats ? formatMoney(stats.funds_moved_cents) : '—'}</span>
                 <span className="label">Funds Moved</span>
               </StatItem>
             </StatsRow>
