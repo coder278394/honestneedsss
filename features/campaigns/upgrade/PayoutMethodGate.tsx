@@ -18,8 +18,28 @@
 import Link from 'next/link'
 import styled from 'styled-components'
 import { AlertTriangle, ArrowRight, Clock } from 'lucide-react'
-import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '@/styles/tokens'
 import type { PayoutReadinessLevel, PayoutMethodSummary } from '@/services/campaignUpgradeService'
+
+// Mirrors the campaign-detail page palette so the gate reads as the same
+// surface rather than a stock warning box.
+const t = {
+  cream:       '#F3EFE8',
+  clay:        '#E8E0D4',
+  slate:       '#2C2B28',
+  charcoal:    '#4A4845',
+  muted:       '#8A857D',
+  border:      '#DDD8CF',
+  accent:      '#C4622D',
+  accentLight: '#FAEAE1',
+  accentDark:  '#9E4A1E',
+  warnBg:      '#FDF6E3',
+  warnBorder:  '#E6D4A3',
+  warnText:    '#7A5C13',
+  infoBg:      '#EEF2FF',
+  infoBorder:  '#C7D2FE',
+  infoText:    '#2537B2',
+  white:       '#FFFFFF',
+}
 
 /**
  * Where a creator adds a payout method.
@@ -33,61 +53,81 @@ export const PAYOUT_METHOD_SETTINGS_PATH = '/settings'
 
 const Panel = styled.div<{ $tone: 'warning' | 'info' }>`
   display: flex;
-  gap: ${SPACING[3]};
-  padding: ${SPACING[4]};
-  border-radius: ${BORDER_RADIUS.LG};
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  font-family: 'DM Sans', sans-serif;
   border: 1px solid
-    ${({ $tone }) => ($tone === 'warning' ? COLORS.WARNING_LIGHT : COLORS.INFO_LIGHT)};
-  background: ${({ $tone }) => ($tone === 'warning' ? COLORS.WARNING_BG : COLORS.INFO_BG)};
+    ${({ $tone }) => ($tone === 'warning' ? t.warnBorder : t.infoBorder)};
+  background: ${({ $tone }) => ($tone === 'warning' ? t.warnBg : t.infoBg)};
+`
 
-  svg {
-    flex-shrink: 0;
-    margin-top: 2px;
-    color: ${({ $tone }) => ($tone === 'warning' ? COLORS.WARNING_DARK : COLORS.INFO_DARK)};
-  }
+const IconWrap = styled.span<{ $tone: 'warning' | 'info' }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  background: ${({ $tone }) => ($tone === 'warning' ? '#F2E4B6' : '#DBE2FE')};
+  color: ${({ $tone }) => ($tone === 'warning' ? t.warnText : t.infoText)};
 `
 
 const Body = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${SPACING[2]};
+  gap: 8px;
+  min-width: 0;
 `
 
 const Title = styled.p`
   margin: 0;
-  font-weight: ${TYPOGRAPHY.WEIGHT_BOLD};
-  color: ${COLORS.TEXT};
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.005em;
+  color: ${t.slate};
 `
 
 const Text = styled.p`
   margin: 0;
-  font-size: 0.9375rem;
-  line-height: 1.5;
-  color: ${COLORS.MUTED_TEXT};
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: ${t.charcoal};
 `
 
 const Action = styled(Link)`
   display: inline-flex;
   align-items: center;
-  gap: ${SPACING[2]};
+  gap: 8px;
   align-self: flex-start;
-  min-height: 44px;
-  padding: ${SPACING[2]} ${SPACING[4]};
-  border-radius: ${BORDER_RADIUS.FULL};
-  background: ${COLORS.PRIMARY};
-  color: ${COLORS.SURFACE};
-  font-weight: ${TYPOGRAPHY.WEIGHT_BOLD};
-  font-size: 0.9375rem;
+  min-height: 40px;
+  padding: 9px 18px;
+  margin-top: 4px;
+  border-radius: 100px;
+  background: ${t.accent};
+  color: ${t.white};
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.3px;
   text-decoration: none;
+  transition: background 180ms ease, transform 120ms ease, box-shadow 180ms ease;
 
   &:hover {
-    background: ${COLORS.PRIMARY_DARK};
+    background: ${t.accentDark};
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px -12px ${t.accent};
   }
 
   &:focus-visible {
-    outline: 2px solid ${COLORS.PRIMARY_DARK};
+    outline: 2px solid ${t.accentDark};
     outline-offset: 2px;
   }
+
+  svg { transition: transform 180ms ease; }
+  &:hover svg { transform: translateX(2px); }
 `
 
 export interface PayoutMethodGateProps {
@@ -114,7 +154,7 @@ export function PayoutMethodGate({
   if (level === 'provisional') {
     return (
       <Panel $tone="info" role="status">
-        <Clock size={20} aria-hidden="true" />
+        <IconWrap $tone="info"><Clock size={16} aria-hidden="true" /></IconWrap>
         <Body>
           <Title>Your payout method is still being verified</Title>
           <Text>
@@ -130,7 +170,7 @@ export function PayoutMethodGate({
   if (isOwnerBlocked) {
     return (
       <Panel $tone="warning" role="alert">
-        <AlertTriangle size={20} aria-hidden="true" />
+        <IconWrap $tone="warning"><AlertTriangle size={16} aria-hidden="true" /></IconWrap>
         <Body>
           <Title>This campaign isn&apos;t ready for Share-to-Earn yet</Title>
           <Text>
@@ -144,7 +184,7 @@ export function PayoutMethodGate({
 
   return (
     <Panel $tone="warning" role="alert">
-      <AlertTriangle size={20} aria-hidden="true" />
+      <IconWrap $tone="warning"><AlertTriangle size={16} aria-hidden="true" /></IconWrap>
       <Body>
         <Title>Add a payout method first</Title>
         <Text>

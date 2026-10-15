@@ -1,0 +1,36 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "retry": "Reintentar",
+    "loading": "Cargando…",
+    "something_went_wrong": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "nav": {
+    "home": "Inicio",
+    "campaigns": "Campañas",
+    "rewards": "Recompensas",
+    "volunteers": "Voluntarios",
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "sign_in": "Iniciar sesión",
+    "sign_out": "Cerrar sesión",
+    "language": "Idioma"
+  },
+  "campaigns": {
+    "title": "Campañas",
+    "subtitle": "Ayuda a un vecino. Cambia una vida.",
+    "create": "Crear una campaña",
+    "browse": "Explorar campañas",
+    "count": "{count, plural, one {# campaña} other {# campañas}}",
+    "empty": "Aún no hay campañas.",
+    "goal_progress": "{raised} recaudado de {goal}",
+    "explore_eyebrow": "Marcando la diferencia",
+    "explore_title": "Explorar Campañas",
+    "explore_subtitle": "Descubre iniciativas que generan un impacto real en comunidades de todo el mundo",
+    "loading": "Cargando campañas…",
+    "no_results": "No se encontraron campañas",
+    "filters": "Filtros"
+  }
+}

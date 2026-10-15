@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
+import LocaleSelector from '@/components/layout/LocaleSelector'
 import styled from 'styled-components'
 
 const Header = styled.header`
@@ -62,6 +63,16 @@ export default function LayoutHeader() {
   return (
     <Header>
       <Navbar />
+      <div
+        style={{
+          position: 'absolute',
+          top: 12,
+          right: 16,
+          zIndex: 100,
+        }}
+      >
+        <LocaleSelector compact />
+      </div>
     </Header>
   )
 }

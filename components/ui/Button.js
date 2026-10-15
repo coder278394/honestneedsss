@@ -2,6 +2,7 @@
 
 import styled, { css } from 'styled-components';
 import { motion } from 'framer-motion';
+import NextLink from 'next/link';
 
 const buttonVariants = {
   primary: css`
@@ -90,18 +91,28 @@ const StyledButton = styled(motion.button)`
   }
 `;
 
-export default function Button({ 
-  children, 
-  variant = 'primary', 
-  size = 'medium', 
+export default function Button({
+  children,
+  variant = 'primary',
+  size = 'medium',
   icon: Icon,
-  ...props 
+  as,
+  ...props
 }) {
+  // `as="link"` is a common caller shortcut meaning "render as a Next.js
+  // link, not the HTML <link> void tag". Catch the lowercase/string form
+  // here so we don't accidentally emit a `<link>…</link>` and crash React.
+  let polymorphicAs = as;
+  if (typeof as === 'string' && as.toLowerCase() === 'link') {
+    polymorphicAs = NextLink;
+  }
+
   return (
-    <StyledButton 
-      $variant={variant} 
+    <StyledButton
+      $variant={variant}
       $size={size}
       whileTap={{ scale: 0.98 }}
+      {...(polymorphicAs ? { as: polymorphicAs } : {})}
       {...props}
     >
       {Icon && <Icon />}

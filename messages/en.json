@@ -1,0 +1,36 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "retry": "Retry",
+    "loading": "Loading…",
+    "something_went_wrong": "Something went wrong. Please try again."
+  },
+  "nav": {
+    "home": "Home",
+    "campaigns": "Campaigns",
+    "rewards": "Rewards",
+    "volunteers": "Volunteers",
+    "profile": "Profile",
+    "settings": "Settings",
+    "sign_in": "Sign in",
+    "sign_out": "Sign out",
+    "language": "Language"
+  },
+  "campaigns": {
+    "title": "Campaigns",
+    "subtitle": "Help a neighbor. Change a life.",
+    "create": "Create a campaign",
+    "browse": "Browse campaigns",
+    "count": "{count, plural, one {# campaign} other {# campaigns}}",
+    "empty": "No campaigns yet.",
+    "goal_progress": "{raised} raised of {goal}",
+    "explore_eyebrow": "Making a difference",
+    "explore_title": "Explore Campaigns",
+    "explore_subtitle": "Discover initiatives making a real impact in communities around the world",
+    "loading": "Loading campaigns…",
+    "no_results": "No campaigns found",
+    "filters": "Filters"
+  }
+}

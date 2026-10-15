@@ -176,6 +176,66 @@ export const campaignUpgradeService = {
     const { data } = await apiClient.post(`/campaigns/upgrade-requests/${upgradeId}/cancel`, {})
     return data
   },
+
+  // ── Phase 3: owner-initiated community upgrade requests ─────────────
+  // Direction note: these are the REVERSE of the sponsor flow above.
+  // Owner asks the community; sponsor fulfils.
+
+  async createCommunityUpgradeRequest(campaignIdOrRef: string, message?: string) {
+    const { data } = await apiClient.post(
+      `/campaigns/${encodeURIComponent(campaignIdOrRef)}/request-upgrade`,
+      { message: message || null }
+    )
+    return data
+  },
+
+  async listCommunityUpgradeRequests(params: {
+    page?: number
+    limit?: number
+    campaignId?: string
+    isVeteran?: boolean
+  } = {}) {
+    const search = new URLSearchParams()
+    if (params.page) search.set('page', String(params.page))
+    if (params.limit) search.set('limit', String(params.limit))
+    if (params.campaignId) search.set('campaign_id', params.campaignId)
+    if (typeof params.isVeteran === 'boolean') search.set('is_veteran', String(params.isVeteran))
+    const qs = search.toString()
+    const { data } = await apiClient.get(
+      `/campaigns/upgrade-requests/community${qs ? `?${qs}` : ''}`
+    )
+    return data
+  },
+
+  async listMyCommunityUpgradeRequests(params: { page?: number; limit?: number } = {}) {
+    const search = new URLSearchParams()
+    if (params.page) search.set('page', String(params.page))
+    if (params.limit) search.set('limit', String(params.limit))
+    const qs = search.toString()
+    const { data } = await apiClient.get(
+      `/campaigns/upgrade-requests/community/mine${qs ? `?${qs}` : ''}`
+    )
+    return data
+  },
+
+  async fulfilCommunityUpgradeRequest(
+    requestId: string,
+    payload: Partial<UpgradeShareConfigInput> = {}
+  ) {
+    const { data } = await apiClient.post(
+      `/campaigns/upgrade-requests/community/${encodeURIComponent(requestId)}/fulfil`,
+      { share_config: payload }
+    )
+    return data
+  },
+
+  async cancelMyCommunityUpgradeRequest(requestId: string, reason?: string) {
+    const { data } = await apiClient.post(
+      `/campaigns/upgrade-requests/community/${encodeURIComponent(requestId)}/cancel-owner`,
+      { reason: reason || null }
+    )
+    return data
+  },
 }
 
 export default campaignUpgradeService

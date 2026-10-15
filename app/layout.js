@@ -108,12 +108,17 @@ export const viewport = {
   themeColor: '#10B981',
 }
 
-export default function AppLayout({ children }) {
+export default async function AppLayout({ children }) {
+  // Read the resolved locale from the Next middleware header. Falls back to 'en'
+  // when the header is missing (unit tests, direct function calls).
+  const { headers } = await import('next/headers')
+  const h = await headers()
+  const initialLocale = h.get('x-nf-locale') === 'es' ? 'es' : 'en'
   return (
-    <html lang="en">
+    <html lang={initialLocale}>
       <body>
         <StyledComponentsRegistry>
-          <Providers>
+          <Providers initialLocale={initialLocale}>
             {/* Skip to main content link for accessibility */}
             <SkipLink href="#main-content">
               Skip to main content

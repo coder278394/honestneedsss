@@ -1,0 +1,75 @@
+/**
+ * Next.js middleware — locale handling + resolver header.
+ *
+ * Phase 1 behaviour (cookie-driven, path-aware):
+ *   - If the URL path starts with a supported locale segment (e.g. /es/foo),
+ *     the middleware mirrors that choice into the `nf_locale` cookie and
+ *     passes the locale downstream in `x-nf-locale`. No URL rewrite is done
+ *     here — the app currently serves one shared route tree and reads the
+ *     cookie via `I18nProvider`.
+ *   - Otherwise the cookie wins; absent cookie, Accept-Language is sampled.
+ *   - The `x-nf-locale` request header lets Server Components see the resolved
+ *     locale without needing to read cookies again.
+ *
+ * When the team adopts next-intl + the `app/[locale]/...` route group, this
+ * middleware is drop-in replaceable with next-intl's — the cookie + header
+ * contract remains the same.
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { DEFAULT_LOCALE, LOCALE_COOKIE, SUPPORTED_LOCALES, normalizeLocale, type Locale } from './lib/i18n/config';
+
+function parseAcceptLanguage(header: string | null): Locale | null {
+  if (!header) return null;
+  const parts = header.split(',').map((p) => {
+    const [tag, qPart] = p.trim().split(';');
+    const q = qPart ? parseFloat((qPart.match(/q=(\d+(\.\d+)?)/) || [])[1] || '1') : 1;
+    return { tag: tag.trim(), q };
+  });
+  parts.sort((a, b) => b.q - a.q);
+  for (const { tag } of parts) {
+    const n = normalizeLocale(tag);
+    if (n) return n;
+  }
+  return null;
+}
+
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Skip static assets, API, and Next internals — nothing to resolve.
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/static') ||
+    /\.[a-zA-Z0-9]+$/.test(pathname)
+  ) {
+    return NextResponse.next();
+  }
+
+  const firstSegment = pathname.split('/')[1]?.toLowerCase();
+  const pathLocale = SUPPORTED_LOCALES.includes(firstSegment as Locale) ? (firstSegment as Locale) : null;
+  const cookieLocale = normalizeLocale(req.cookies.get(LOCALE_COOKIE)?.value);
+  const headerLocale = parseAcceptLanguage(req.headers.get('accept-language'));
+
+  const resolved: Locale = pathLocale || cookieLocale || headerLocale || DEFAULT_LOCALE;
+
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set('x-nf-locale', resolved);
+
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+
+  // Persist a path-based choice so cross-tab navigation retains it.
+  if (pathLocale && cookieLocale !== pathLocale) {
+    res.cookies.set(LOCALE_COOKIE, pathLocale, {
+      maxAge: 365 * 24 * 60 * 60,
+      path: '/',
+      sameSite: 'lax',
+    });
+  }
+  return res;
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)'],
+};

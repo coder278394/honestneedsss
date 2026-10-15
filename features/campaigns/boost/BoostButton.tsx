@@ -26,6 +26,13 @@ const Wrap = styled.div`
   display: inline-flex;
   flex-direction: column;
   gap: ${SPACING[1]};
+
+  /* On narrow screens the wrap stretches so the Button inside can also go
+     full-width and show the complete label. */
+  @media (max-width: 560px) {
+    display: flex;
+    width: 100%;
+  }
 `
 
 const Button = styled.button<{ $boosted?: boolean }>`
@@ -60,12 +67,18 @@ const Button = styled.button<{ $boosted?: boolean }>`
     opacity: 0.9;
   }
 
-  /* Collapse to icon + count on very small screens. */
-  @media (max-width: 480px) {
+  /* Full-width on narrow screens so the label never collapses to a lone icon
+     — "Boost this campaign (free)" is the whole point of the control, hiding
+     the words leaves a mystery lightning bolt. */
+  @media (max-width: 560px) {
+    width: 100%;
     padding: ${SPACING[2]} ${SPACING[3]};
-    .boost-label {
-      display: none;
-    }
+  }
+
+  .boost-label {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
   }
 `
 
@@ -76,6 +89,7 @@ const Count = styled.span`
 const Hint = styled.span`
   font-size: 0.75rem;
   color: ${COLORS.MUTED_TEXT};
+  line-height: 1.4;
 `
 
 /** Human countdown to the next boost window. */
@@ -134,7 +148,7 @@ export function BoostButton({ campaignId, source = 'campaign_page', hideCount }:
         onClick={() => router.push(`/login?returnTo=${encodeURIComponent(pathname || '/')}`)}
       >
         <Zap size={16} aria-hidden="true" />
-        <span className="boost-label">Sign in to boost</span>
+        <span className="boost-label">Sign in to boost this campaign</span>
       </Button>
     )
   }
@@ -144,7 +158,7 @@ export function BoostButton({ campaignId, source = 'campaign_page', hideCount }:
       <Wrap>
         <Button type="button" disabled aria-describedby={`boost-hint-${campaignId}`}>
           <Zap size={16} aria-hidden="true" />
-          <span className="boost-label">Boost unavailable</span>
+          <span className="boost-label">Can&apos;t boost right now</span>
         </Button>
         <Hint id={`boost-hint-${campaignId}`}>
           {data.reason || 'This campaign cannot be boosted right now.'}
@@ -156,6 +170,16 @@ export function BoostButton({ campaignId, source = 'campaign_page', hideCount }:
   const boosted = data.state === 'already_boosted_today'
   const pending = boost.isPending
 
+  // Copy choice: "Boost" alone is jargon — new users don't know whether they're
+  // paying, signing something, or just clicking a like. "Boost this campaign
+  // (free)" names the target and the price. The success state thanks the
+  // viewer so the next tap doesn't feel like a failure.
+  const label = pending
+    ? 'Boosting…'
+    : boosted
+      ? 'Boosted today — thanks!'
+      : 'Boost this campaign (free)'
+
   return (
     <Wrap>
       <Button
@@ -165,11 +189,10 @@ export function BoostButton({ campaignId, source = 'campaign_page', hideCount }:
         aria-pressed={boosted}
         aria-describedby={boosted && countdown ? `boost-hint-${campaignId}` : undefined}
         onClick={() => boost.mutate({ source })}
+        title="Push this campaign higher in the trending list. Free; one boost per day."
       >
         <Zap size={16} aria-hidden="true" fill={boosted ? 'currentColor' : 'none'} />
-        <span className="boost-label">
-          {pending ? 'Boosting…' : boosted ? 'Boosted today' : 'Boost'}
-        </span>
+        <span className="boost-label">{label}</span>
         {!hideCount && data.community_boost_count > 0 && (
           <Count aria-label={`${data.community_boost_count} boosts`}>
             {data.community_boost_count}
@@ -181,6 +204,12 @@ export function BoostButton({ campaignId, source = 'campaign_page', hideCount }:
       <span aria-live="polite" className="sr-only" style={{ position: 'absolute', left: -9999 }}>
         {data.community_boost_count} boosts
       </span>
+
+      {!boosted && !pending && (
+        <Hint id={`boost-hint-${campaignId}`}>
+          Pushes this campaign higher in the trending list. Free — one boost per day.
+        </Hint>
+      )}
 
       {boosted && countdown && (
         <Hint id={`boost-hint-${campaignId}`}>You can boost again in {countdown}</Hint>

@@ -7,6 +7,7 @@ import { FiMail, FiArrowRight, FiCheck } from 'react-icons/fi';
 import Container from '../ui/Container';
 import Button from '../ui/Button';
 import StyledInput from '../ui/Input';
+import ExternalLinksBlock from '@/components/layout/ExternalLinksBlock';
 
 const FooterWrapper = styled.footer`
   background-color: ${({ theme }) => theme?.colors?.text || '#0F172A'};
@@ -298,6 +299,10 @@ export default function Footer() {
             </p>
           </Column>
         </FooterGrid>
+
+        {/* Phase 4 — config-driven social + external program links.
+            Renders nothing if PlatformSettings.external_links is empty. */}
+        <ExternalLinksBlock />
 
         <BottomBar>
           <Copyright>

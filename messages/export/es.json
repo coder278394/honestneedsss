@@ -1,0 +1,114 @@
+{
+  "campaigns.browse": {
+    "source": "Browse campaigns",
+    "translation": "Explorar campañas"
+  },
+  "campaigns.count": {
+    "source": "{count, plural, one {# campaign} other {# campaigns}}",
+    "translation": "{count, plural, one {# campaña} other {# campañas}}"
+  },
+  "campaigns.create": {
+    "source": "Create a campaign",
+    "translation": "Crear una campaña"
+  },
+  "campaigns.empty": {
+    "source": "No campaigns yet.",
+    "translation": "Aún no hay campañas."
+  },
+  "campaigns.explore_eyebrow": {
+    "source": "Making a difference",
+    "translation": "Marcando la diferencia"
+  },
+  "campaigns.explore_subtitle": {
+    "source": "Discover initiatives making a real impact in communities around the world",
+    "translation": "Descubre iniciativas que generan un impacto real en comunidades de todo el mundo"
+  },
+  "campaigns.explore_title": {
+    "source": "Explore Campaigns",
+    "translation": "Explorar Campañas"
+  },
+  "campaigns.filters": {
+    "source": "Filters",
+    "translation": "Filtros"
+  },
+  "campaigns.goal_progress": {
+    "source": "{raised} raised of {goal}",
+    "translation": "{raised} recaudado de {goal}"
+  },
+  "campaigns.loading": {
+    "source": "Loading campaigns…",
+    "translation": "Cargando campañas…"
+  },
+  "campaigns.no_results": {
+    "source": "No campaigns found",
+    "translation": "No se encontraron campañas"
+  },
+  "campaigns.subtitle": {
+    "source": "Help a neighbor. Change a life.",
+    "translation": "Ayuda a un vecino. Cambia una vida."
+  },
+  "campaigns.title": {
+    "source": "Campaigns",
+    "translation": "Campañas"
+  },
+  "common.cancel": {
+    "source": "Cancel",
+    "translation": "Cancelar"
+  },
+  "common.loading": {
+    "source": "Loading…",
+    "translation": "Cargando…"
+  },
+  "common.ok": {
+    "source": "OK",
+    "translation": "OK"
+  },
+  "common.retry": {
+    "source": "Retry",
+    "translation": "Reintentar"
+  },
+  "common.save": {
+    "source": "Save",
+    "translation": "Guardar"
+  },
+  "common.something_went_wrong": {
+    "source": "Something went wrong. Please try again.",
+    "translation": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "nav.campaigns": {
+    "source": "Campaigns",
+    "translation": "Campañas"
+  },
+  "nav.home": {
+    "source": "Home",
+    "translation": "Inicio"
+  },
+  "nav.language": {
+    "source": "Language",
+    "translation": "Idioma"
+  },
+  "nav.profile": {
+    "source": "Profile",
+    "translation": "Perfil"
+  },
+  "nav.rewards": {
+    "source": "Rewards",
+    "translation": "Recompensas"
+  },
+  "nav.settings": {
+    "source": "Settings",
+    "translation": "Configuración"
+  },
+  "nav.sign_in": {
+    "source": "Sign in",
+    "translation": "Iniciar sesión"
+  },
+  "nav.sign_out": {
+    "source": "Sign out",
+    "translation": "Cerrar sesión"
+  },
+  "nav.volunteers": {
+    "source": "Volunteers",
+    "translation": "Voluntarios"
+  }
+}

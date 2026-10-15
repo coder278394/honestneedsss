@@ -11,6 +11,7 @@ import { CampaignGrid } from '@/components/campaign/CampaignGrid'
 import { SearchBar } from '@/components/campaign/SearchBar'
 import { FiltersSidebar } from '@/components/campaign/FiltersSidebar'
 import { tk, DashboardGlobalStyle, fadeDown } from '@/styles/dashboardTokens'
+import { useT } from '@/lib/i18n/I18nProvider'
 
 // ─── Page shell ───────────────────────────────────────────────────────────────
 const Page = styled.div`
@@ -257,6 +258,7 @@ function countActiveFilters(filters: any): number {
 // ─── Component ─────────────────────────────────────────────────────────────────
 export default function CampaignBrowsePage() {
   const router = useRouter()
+  const { t } = useT()
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
 
   const {
@@ -346,10 +348,10 @@ export default function CampaignBrowsePage() {
         <HeroInner>
           <HeroEyebrow>
             <Sparkles size={12} />
-            Making a difference
+            {t('campaigns.explore_eyebrow')}
           </HeroEyebrow>
-          <HeroTitle>Explore Campaigns</HeroTitle>
-          <HeroSub>Discover initiatives making a real impact in communities around the world</HeroSub>
+          <HeroTitle>{t('campaigns.explore_title')}</HeroTitle>
+          <HeroSub>{t('campaigns.explore_subtitle')}</HeroSub>
         </HeroInner>
       </Hero>
 
@@ -376,17 +378,17 @@ export default function CampaignBrowsePage() {
           <ResultsBar>
             <ResultsCount>
               {isLoading
-                ? 'Loading campaigns…'
+                ? t('campaigns.loading')
                 : total > 0
-                  ? <><strong>{start}–{end}</strong> of <strong>{total.toLocaleString()}</strong> campaigns</>
-                  : 'No campaigns found'}
+                  ? <><strong>{start}–{end}</strong> of <strong>{total.toLocaleString()}</strong> {t('campaigns.title').toLowerCase()}</>
+                  : t('campaigns.no_results')}
             </ResultsCount>
             <MobileFilterBtn
               $active={activeFilterCount > 0}
               onClick={() => setMobileFiltersOpen(true)}
             >
               <SlidersHorizontal size={14} />
-              Filters
+              {t('campaigns.filters')}
               {activeFilterCount > 0 && <FilterBadge>{activeFilterCount}</FilterBadge>}
             </MobileFilterBtn>
           </ResultsBar>

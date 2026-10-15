@@ -19,59 +19,107 @@
 import { useState } from 'react'
 import styled from 'styled-components'
 import { Sparkles, CheckCircle2, Info } from 'lucide-react'
-import { COLORS, SPACING, BORDER_RADIUS, TYPOGRAPHY } from '@/styles/tokens'
 import { useUpgradeEligibility, useUpgradeCampaign } from '@/hooks/useCampaignUpgrade'
 import PayoutMethodGate from './PayoutMethodGate'
 import UpgradeModal from './UpgradeModal'
 
+// Local palette mirrors the campaign-detail page tokens so the card reads as a
+// native section of that page, not a transplanted widget. See
+// app/(campaigns)/campaigns/[id]/CampaignDetailClient.tsx for the source.
+const t = {
+  sand:        '#FAF8F4',
+  cream:       '#F3EFE8',
+  clay:        '#E8E0D4',
+  slate:       '#2C2B28',
+  charcoal:    '#4A4845',
+  muted:       '#8A857D',
+  border:      '#DDD8CF',
+  accent:      '#C4622D',
+  accentLight: '#FAEAE1',
+  accentDark:  '#9E4A1E',
+  success:     '#166534',
+  successLight:'#F0FDF4',
+  white:       '#FFFFFF',
+}
+
 const Card = styled.section`
   display: flex;
   flex-direction: column;
-  gap: ${SPACING[3]};
-  padding: ${SPACING[5]};
-  border: 1px solid ${COLORS.BORDER};
-  border-radius: ${BORDER_RADIUS.LG};
-  background: ${COLORS.SURFACE};
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid ${t.border};
+  border-radius: 18px;
+  background: ${t.white};
+  font-family: 'DM Sans', sans-serif;
+  color: ${t.slate};
+  box-shadow: 0 1px 0 rgba(44,43,40,0.02), 0 20px 40px -28px rgba(44,43,40,0.18);
+`
+
+const IconBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: ${t.accentLight};
+  color: ${t.accent};
+  flex-shrink: 0;
+`
+
+const HeadRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
 `
 
 const Heading = styled.h3`
-  display: flex;
-  align-items: center;
-  gap: ${SPACING[2]};
   margin: 0;
-  font-size: 1.0625rem;
-  font-weight: ${TYPOGRAPHY.WEIGHT_BOLD};
-  color: ${COLORS.TEXT};
+  font-family: 'Syne', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: ${t.slate};
+  text-wrap: balance;
 `
 
 const Text = styled.p`
   margin: 0;
   font-size: 0.9375rem;
-  line-height: 1.5;
-  color: ${COLORS.MUTED_TEXT};
+  line-height: 1.55;
+  color: ${t.charcoal};
 `
 
 const Cta = styled.button`
   align-self: flex-start;
   min-height: 44px;
-  padding: ${SPACING[2]} ${SPACING[5]};
+  padding: 10px 22px;
   border: none;
-  border-radius: ${BORDER_RADIUS.FULL};
-  background: ${COLORS.PRIMARY};
-  color: ${COLORS.SURFACE};
-  font-weight: ${TYPOGRAPHY.WEIGHT_BOLD};
+  border-radius: 100px;
+  background: ${t.accent};
+  color: ${t.white};
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
   font-size: 0.9375rem;
+  letter-spacing: 0.3px;
   cursor: pointer;
+  transition: background 180ms ease, transform 120ms ease, box-shadow 180ms ease;
 
   &:hover:not(:disabled) {
-    background: ${COLORS.PRIMARY_DARK};
+    background: ${t.accentDark};
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px -12px ${t.accent};
+  }
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: not-allowed;
+    background: ${t.muted};
   }
   &:focus-visible {
-    outline: 2px solid ${COLORS.PRIMARY_DARK};
+    outline: 2px solid ${t.accentDark};
     outline-offset: 2px;
   }
 
@@ -83,33 +131,31 @@ const Cta = styled.button`
 const Chip = styled.span<{ $tone: 'success' | 'muted' }>`
   display: inline-flex;
   align-items: center;
-  gap: ${SPACING[2]};
+  gap: 6px;
   align-self: flex-start;
-  padding: ${SPACING[1]} ${SPACING[3]};
-  border-radius: ${BORDER_RADIUS.FULL};
-  font-size: 0.8125rem;
-  font-weight: ${TYPOGRAPHY.WEIGHT_BOLD};
-  background: ${({ $tone }) => ($tone === 'success' ? COLORS.SUCCESS_BG : COLORS.DISABLED)};
-  color: ${({ $tone }) => ($tone === 'success' ? COLORS.SUCCESS_DARK : COLORS.MUTED_TEXT)};
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  background: ${({ $tone }) => ($tone === 'success' ? t.successLight : t.cream)};
+  color: ${({ $tone }) => ($tone === 'success' ? t.success : t.charcoal)};
 `
 
 const Skeleton = styled.div`
-  height: 96px;
-  border-radius: ${BORDER_RADIUS.LG};
-  background: ${COLORS.DISABLED};
+  height: 112px;
+  border-radius: 18px;
+  background: ${t.cream};
 
   @media (prefers-reduced-motion: no-preference) {
     animation: pulse 1.6s ease-in-out infinite;
   }
 
   @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.6;
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
   }
 `
 
@@ -142,7 +188,7 @@ export function UpgradeToShareCard({ campaignId, returnTo }: UpgradeToShareCardP
     return (
       <Card aria-label="Share Campaign status">
         <Chip $tone="success">
-          <CheckCircle2 size={14} aria-hidden="true" /> Share Campaign
+          <CheckCircle2 size={13} aria-hidden="true" /> Share Campaign
         </Chip>
         <Text>
           Supporters can earn rewards for sharing this campaign
@@ -163,9 +209,10 @@ export function UpgradeToShareCard({ campaignId, returnTo }: UpgradeToShareCardP
   if (hardBlocker) {
     return (
       <Card aria-label="Upgrade to Share Campaign">
-        <Heading>
-          <Info size={18} aria-hidden="true" /> Upgrade to a Share Campaign
-        </Heading>
+        <HeadRow>
+          <IconBadge><Info size={18} aria-hidden="true" /></IconBadge>
+          <Heading>Upgrade to a Share Campaign</Heading>
+        </HeadRow>
         <Text>{hardBlocker.message}</Text>
         <Cta type="button" disabled aria-disabled="true">
           Upgrade to Share Campaign
@@ -177,9 +224,10 @@ export function UpgradeToShareCard({ campaignId, returnTo }: UpgradeToShareCardP
   return (
     <>
       <Card aria-label="Upgrade to Share Campaign">
-        <Heading>
-          <Sparkles size={18} aria-hidden="true" /> Turn this into a Share Campaign
-        </Heading>
+        <HeadRow>
+          <IconBadge><Sparkles size={18} aria-hidden="true" /></IconBadge>
+          <Heading>Turn this into a Share Campaign</Heading>
+        </HeadRow>
         <Text>
           Reward the people who share your story. Everything on this page stays exactly as it is —
           you just add a reward for supporters whose shares bring someone in.

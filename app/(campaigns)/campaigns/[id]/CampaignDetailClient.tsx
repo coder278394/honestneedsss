@@ -84,6 +84,7 @@ import { useAuthStore } from '@/store/authStore'
 import UpgradeToShareCard from '@/features/campaigns/upgrade/UpgradeToShareCard'
 import BoostButton from '@/features/campaigns/boost/BoostButton'
 import SponsorUpgradeRequest from '@/features/campaigns/upgrade/SponsorUpgradeRequest'
+import UpgradeAnotherCampaignButton from '@/components/campaign/UpgradeAnotherCampaignButton'
 
 // ─── Animations ────────────────────────────────────────────────────────────────
 
@@ -1555,6 +1556,25 @@ export default function CampaignDetailClient() {
             {!isCreator && campaignId && (
               <div style={{ marginTop: '1rem' }}>
                 <SponsorUpgradeRequest campaignId={String(campaignId)} />
+              </div>
+            )}
+
+            {/* Help-upgrade: a qualified sponsor can fulfil the upgrade on the
+                owner's behalf (owner then approves). Distinct from the ASK
+                above — this is the DO. Mirrors the same button on campaign
+                list cards so the affordance is in both places. */}
+            {!isCreator && campaignId && campaign && (
+              <div style={{ marginTop: '0.75rem' }}>
+                <UpgradeAnotherCampaignButton
+                  campaign={{
+                    campaign_id: String(campaignId),
+                    _id: (campaign as unknown as { _id?: string })._id,
+                    campaign_type: (campaign as unknown as { campaign_type?: 'fundraising' | 'sharing' }).campaign_type,
+                    creator_id: (campaign as unknown as { creator_id?: string }).creator_id,
+                  }}
+                  viewerId={user?.id ?? null}
+                  isAuthenticated={!!user}
+                />
               </div>
             )}
 

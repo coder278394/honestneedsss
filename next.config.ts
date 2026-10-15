@@ -57,6 +57,36 @@ const nextConfig: NextConfig = {
     return [
       { source: '/explore', destination: '/discover', permanent: false },
       { source: '/campaigns/create', destination: '/campaigns/new', permanent: false },
+
+      // Battle Buddies for Vets moved to a separate site. Everything under
+      // /veterans and /battle-buddies now 308-redirects there so old bookmarks,
+      // shared links, and in-app references all land in one place.
+      // Platform-level veteran recognition (campaign flagging, Sponsorship Pool
+      // ordering, veteran_profile on User) stays on honestneed.com.
+      {
+        source: '/veterans',
+        destination: 'https://battlebuddiesforvets.vercel.app/Veterans',
+        permanent: true,
+        basePath: false,
+      },
+      {
+        source: '/veterans/:path*',
+        destination: 'https://battlebuddiesforvets.vercel.app/Veterans',
+        permanent: true,
+        basePath: false,
+      },
+      {
+        source: '/battle-buddies',
+        destination: 'https://battlebuddiesforvets.vercel.app/Veterans',
+        permanent: true,
+        basePath: false,
+      },
+      {
+        source: '/battle-buddies/:path*',
+        destination: 'https://battlebuddiesforvets.vercel.app/Veterans',
+        permanent: true,
+        basePath: false,
+      },
     ];
   },
   
